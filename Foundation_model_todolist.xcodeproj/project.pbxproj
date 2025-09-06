@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4B1716942E6C7AAC00E26303 /* GEMINI.md in Resources */ = {isa = PBXBuildFile; fileRef = 4B1716932E6C7AAC00E26303 /* GEMINI.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		4B17164B2E6C6B0700E26303 /* Foundation_model_todolist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Foundation_model_todolist.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B1716932E6C7AAC00E26303 /* GEMINI.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = GEMINI.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +37,7 @@
 		4B1716422E6C6B0700E26303 = {
 			isa = PBXGroup;
 			children = (
+				4B1716932E6C7AAC00E26303 /* GEMINI.md */,
 				4B17164D2E6C6B0700E26303 /* Foundation_model_todolist */,
 				4B17164C2E6C6B0700E26303 /* Products */,
 			);
@@ -109,6 +115,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4B1716942E6C7AAC00E26303 /* GEMINI.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

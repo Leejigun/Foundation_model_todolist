@@ -1,6 +1,6 @@
 import Foundation
 
-class ToggleTodoUseCase {
+class UpdateTodoUseCase {
     private let repository: TodoRepository
 
     init(repository: TodoRepository) {
@@ -8,8 +8,6 @@ class ToggleTodoUseCase {
     }
 
     func execute(item: TodoItem) async throws {
-        var mutatedItem = item
-        mutatedItem.isCompleted.toggle()
-        try await repository.update(item: mutatedItem)
+        try await repository.update(item: item)
     }
 }

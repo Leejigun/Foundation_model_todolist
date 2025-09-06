@@ -7,8 +7,8 @@ class AddTodoUseCase {
         self.repository = repository
     }
 
-    func execute(title: String) async throws {
-        let newItem = TodoItem(id: UUID(), title: title, isCompleted: false)
-        try await repository.addTodo(item: newItem)
+    func execute(title: String) async throws -> TodoItem {
+        let newItem = TodoItem(id: UUID(), title: title, isCompleted: false, suggestedCorrection: nil, isCorrectionPending: true)
+        return try await repository.addTodo(item: newItem)
     }
 }

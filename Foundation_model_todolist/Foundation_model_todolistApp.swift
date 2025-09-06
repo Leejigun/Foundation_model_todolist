@@ -14,6 +14,6 @@ struct Foundation_model_todolistApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: TodoItem.self)
+        .modelContainer(for: TodoItemDataModel.self)
     }
 }
