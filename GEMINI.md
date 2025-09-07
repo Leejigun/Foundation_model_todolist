@@ -13,7 +13,75 @@ Todolist를 SwiftUI 기반으로
 
 ## 스펙
 
+### Apple Foundation Models 사용법
+
+이 프로젝트에서 Apple의 온디바이스 AI인 Foundation Models 프레임워크를 사용하는 주요 패턴은 다음과 같습니다.
+
+1.  **프레임워크 임포트**:
+    ```swift
+    import FoundationModels
+    ```
+
+2.  **모델 가용성 확인**:
+    모델을 사용하기 전에 기기에서 사용 가능한지 확인하는 것이 좋습니다.
+    ```swift
+    let systemModel = SystemLanguageModel.default
+    guard systemModel.isAvailable else {
+        print("Foundation Model unavailable: \(systemModel.availability)")
+        // 모델 사용 불가 시 대체 로직 또는 사용자에게 안내
+        return // 또는 throw
+    }
+    ```
+
+3.  **`LanguageModelSession` 초기화**:
+    LLM과의 상호작용은 `LanguageModelSession`을 통해 이루어집니다. 이 세션은 모델의 전반적인 행동을 정의하는 `systemPrompt`와, 모델이 호출할 수 있는 `Tool`들을 인자로 받습니다.
+    ```swift
+    // 텍스트 교정처럼 특정 도구가 필요 없는 경우 tools는 빈 배열로 초기화
+    let session = LanguageModelSession(tools: []) {
+        """
+        당신은 매우 정확한 텍스트 교정 AI입니다. 제공된 텍스트의 문법 오류, 철자 오류, 어색한 구문을 교정하는 것이 당신의 임무입니다.
+        원본 텍스트의 언어를 유지하세요.
+        교정된 텍스트만 반환하며, 따옴표, 구분자 또는 추가 설명은 포함하지 마세요.
+        """
+    }
+    ```
+
+4.  **모델에 프롬프트 전송 및 응답 스트리밍**:
+    `session.streamResponse(to: prompt)`를 사용하여 모델에 요청을 보내고 응답을 스트리밍 방식으로 받습니다.
+    ```swift
+    let userPrompt = "교정할 텍스트: \"\(text)\"" // 사용자에게서 받은 텍스트를 포함한 프롬프트
+    let stream = session.streamResponse(to: userPrompt)
+
+    var generatedText = ""
+    for try await part in stream {
+        if let textPart = part.text { // 또는 part.content 등 실제 타입에 따라 접근
+            generatedText += textPart
+        }
+    }
+    // generatedText에 모델의 응답이 최종적으로 담깁니다.
+    ```
+    *주의*: `part.text` 또는 `part.content`는 `streamResponse`의 `generating` 파라미터 유무에 따라 달라질 수 있습니다. `generating: SomeGenerableType.self`를 사용하면 `part`는 해당 `Generable` 타입의 부분적인 스냅샷을 반환합니다.
+
+5.  **구조화된 출력 (`@Generable`, `@Guide`)**:
+    모델로부터 특정 Swift `struct` 형태로 응답을 받고 싶을 때 사용합니다.
+    ```swift
+    import FoundationModels
+
+    @Generable
+    struct MyStructuredOutput {
+        @Guide(description: "생성될 데이터에 대한 설명")
+        let propertyName: String
+    }
+
+    // 사용 예시:
+    // let stream = session.streamResponse(to: prompt, generating: MyStructuredOutput.self)
+    // for try await partial in stream {
+    //     // partial은 MyStructuredOutput의 부분적인 인스턴스가 됩니다.
+    // }
+    ```
+
 ### 클린 아키텍처 (Clean Architecture)
+
 
 이 프로젝트는 엄격한 클린 아키텍처를 따르며, 계층은 `Domain`, `Data`, `Presentation` 세 가지로 분리됩니다.
 

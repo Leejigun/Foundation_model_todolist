@@ -4,16 +4,18 @@ import Combine
 @MainActor
 class TodoListViewModel: ObservableObject {
     @Published var todoItems: [TodoItem] = []
-
+    @Published var dailyBriefing: DailyBriefing? // Changed type
+    
     private let getTodosUseCase: GetTodosUseCase
     private let addTodoUseCase: AddTodoUseCase
     private let updateTodoUseCase: UpdateTodoUseCase
     private let toggleTodoUseCase: ToggleTodoUseCase
     private let acceptCorrectionUseCase: AcceptCorrectionUseCase
     private let rejectCorrectionUseCase: RejectCorrectionUseCase
-    private let deleteTodoUseCase: DeleteTodoUseCase // New
-    private let aiCorrectionService: AICorrectionService
-
+    private let deleteTodoUseCase: DeleteTodoUseCase
+    private let summarizeTodosUseCase: SummarizeTodosUseCase
+    private let aiCorrectionService: AIGenerativeService
+    
     init(
         getTodosUseCase: GetTodosUseCase,
         addTodoUseCase: AddTodoUseCase,
@@ -21,8 +23,9 @@ class TodoListViewModel: ObservableObject {
         toggleTodoUseCase: ToggleTodoUseCase,
         acceptCorrectionUseCase: AcceptCorrectionUseCase,
         rejectCorrectionUseCase: RejectCorrectionUseCase,
-        deleteTodoUseCase: DeleteTodoUseCase, // New
-        aiCorrectionService: AICorrectionService
+        deleteTodoUseCase: DeleteTodoUseCase,
+        summarizeTodosUseCase: SummarizeTodosUseCase,
+        aiCorrectionService: AIGenerativeService
     ) {
         self.getTodosUseCase = getTodosUseCase
         self.addTodoUseCase = addTodoUseCase
@@ -30,28 +33,33 @@ class TodoListViewModel: ObservableObject {
         self.toggleTodoUseCase = toggleTodoUseCase
         self.acceptCorrectionUseCase = acceptCorrectionUseCase
         self.rejectCorrectionUseCase = rejectCorrectionUseCase
-        self.deleteTodoUseCase = deleteTodoUseCase // New
+        self.deleteTodoUseCase = deleteTodoUseCase
+        self.summarizeTodosUseCase = summarizeTodosUseCase
         self.aiCorrectionService = aiCorrectionService
     }
-
+    
     func loadTodos() {
         Task {
             do {
                 todoItems = try await getTodosUseCase.execute()
+                // Generate daily briefing after loading todos
+                dailyBriefing = try await summarizeTodosUseCase.execute()
             } catch {
                 // Handle error
-                print("Error loading todos: \(error)")
+                print("Error loading todos or generating briefing: \(error)")
+                // Set a default DailyBriefing object for error case
+                dailyBriefing = DailyBriefing(summary: "브리핑 생성에 실패했습니다.")
             }
         }
     }
-
-    func addTodo(title: String) {
+    
+    func addTodo(title: String, dueDate: Date?) {
         Task {
             do {
                 // Add the item with the original title, marked as pending correction
-                let newItem = try await addTodoUseCase.execute(title: title)
+                let newItem = try await addTodoUseCase.execute(title: title, dueDate: dueDate) // Pass dueDate
                 loadTodos() // Refresh the list to show the new item
-
+                
                 // Correct in the background
                 let correctedTitle = await aiCorrectionService.correct(text: newItem.title)
                 
@@ -83,7 +91,7 @@ class TodoListViewModel: ObservableObject {
             }
         }
     }
-
+    
     func toggleCompletion(for item: TodoItem) {
         Task {
             do {
@@ -95,7 +103,7 @@ class TodoListViewModel: ObservableObject {
             }
         }
     }
-
+    
     func acceptCorrection(for item: TodoItem) {
         Task {
             do {
@@ -106,7 +114,7 @@ class TodoListViewModel: ObservableObject {
             }
         }
     }
-
+    
     func rejectCorrection(for item: TodoItem) {
         Task {
             do {
@@ -117,13 +125,13 @@ class TodoListViewModel: ObservableObject {
             }
         }
     }
-
+    
     // New method for deleting todos
     func deleteTodo(for item: TodoItem) {
         Task {
             do {
                 try await deleteTodoUseCase.execute(item: item)
-                loadTodos() // Reload the list after deletion
+                loadTodos() // Reload the list after deletioni
             } catch {
                 print("Error deleting todo: \(error)")
             }

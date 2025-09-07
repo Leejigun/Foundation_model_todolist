@@ -6,4 +6,6 @@ struct TodoItem: Identifiable {
     var isCompleted: Bool
     var suggestedCorrection: String?
     var isCorrectionPending: Bool
+    var dueDate: Date?
+    var creationDate: Date
 }

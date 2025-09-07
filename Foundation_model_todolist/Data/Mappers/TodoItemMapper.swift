@@ -7,7 +7,9 @@ struct TodoItemMapper {
             title: dataModel.title,
             isCompleted: dataModel.isCompleted,
             suggestedCorrection: dataModel.suggestedCorrection,
-            isCorrectionPending: dataModel.isCorrectionPending
+            isCorrectionPending: dataModel.isCorrectionPending,
+            dueDate: dataModel.dueDate,
+            creationDate: dataModel.creationDate
         )
     }
 
@@ -17,7 +19,9 @@ struct TodoItemMapper {
             title: entity.title,
             isCompleted: entity.isCompleted,
             suggestedCorrection: entity.suggestedCorrection,
-            isCorrectionPending: entity.isCorrectionPending
+            isCorrectionPending: entity.isCorrectionPending,
+            dueDate: entity.dueDate,
+            creationDate: entity.creationDate
         )
     }
 }

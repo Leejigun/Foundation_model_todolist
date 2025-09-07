@@ -9,12 +9,16 @@ final class TodoItemDataModel {
     var isCompleted: Bool
     var suggestedCorrection: String?
     var isCorrectionPending: Bool
+    var dueDate: Date?
+    var creationDate: Date
     
-    init(id: UUID = UUID(), title: String, isCompleted: Bool, suggestedCorrection: String? = nil, isCorrectionPending: Bool = false) {
+    init(id: UUID = UUID(), title: String, isCompleted: Bool, suggestedCorrection: String? = nil, isCorrectionPending: Bool = false, dueDate: Date? = nil, creationDate: Date = Date()) {
         self.id = id
         self.title = title
         self.isCompleted = isCompleted
         self.suggestedCorrection = suggestedCorrection
         self.isCorrectionPending = isCorrectionPending
+        self.dueDate = dueDate
+        self.creationDate = creationDate
     }
 }
